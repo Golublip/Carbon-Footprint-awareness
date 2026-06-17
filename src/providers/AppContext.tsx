@@ -85,7 +85,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     updatedLogs.sort((a, b) => b.date.localeCompare(a.date));
 
     // Update streak logic
-    let updatedProfile = { ...profile };
+    const updatedProfile = { ...profile };
     const todayStr = new Date().toISOString().split('T')[0];
     const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
