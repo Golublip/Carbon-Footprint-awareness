@@ -1,7 +1,8 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
-import { ThemeProvider, useTheme } from '../providers/ThemeContext';
+import { ThemeProvider } from '../providers/ThemeProvider';
+import { useTheme } from '../providers/ThemeContext';
 
 const ThemeConsumer: React.FC = () => {
   const { theme, toggleTheme } = useTheme();

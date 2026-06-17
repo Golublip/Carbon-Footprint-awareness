@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { AppProvider } from './providers/AppContext';
-import { ThemeProvider, useTheme } from './providers/ThemeContext';
+import { AppProvider } from './providers/AppProvider';
+import { ThemeProvider } from './providers/ThemeProvider';
+import { useTheme } from './providers/ThemeContext';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { TrackerScreen } from './screens/TrackerScreen';
 import { CoachScreen } from './screens/CoachScreen';

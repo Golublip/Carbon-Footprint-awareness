@@ -1,7 +1,8 @@
 import React from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
-import { AppProvider, useApp } from '../providers/AppContext';
+import { AppProvider } from '../providers/AppProvider';
+import { useApp } from '../providers/AppContext';
 
 // Test consumer component
 const TestConsumer: React.FC = () => {
