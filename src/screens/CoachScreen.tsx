@@ -7,14 +7,8 @@ import type { ChatMessage } from '../models/types';
 
 export const CoachScreen: React.FC = () => {
   const { logs, profile } = useApp();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  // Seed initial welcome message
-  useEffect(() => {
-    const defaultMsg: ChatMessage = {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    {
       id: 'welcome-msg',
       sender: 'ai',
       text: `Hi ${profile.name}! I am EcoCoach, your personal AI sustainability assistant. I've analyzed your 14-day carbon history.
@@ -26,9 +20,12 @@ You can ask me:
 
 How can I help you live more sustainably today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages([defaultMsg]);
-  }, [profile.name]);
+    }
+  ]);
+
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom on new message
   useEffect(() => {

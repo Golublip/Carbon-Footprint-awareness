@@ -57,7 +57,7 @@ Join me and build a sustainable future!`;
 
   // Helper to dynamically render Lucide icons
   const renderBadgeIcon = (iconName: string, unlocked: boolean) => {
-    const IconComponent = (Icons as any)[iconName] || Icons.Award;
+    const IconComponent = (Icons as unknown as Record<string, React.ComponentType<{ className?: string; 'aria-hidden'?: string }>>)[iconName] || Icons.Award;
     return (
       <IconComponent
         className={`w-6 h-6 ${unlocked ? 'text-blue-500' : 'text-zinc-400'}`}

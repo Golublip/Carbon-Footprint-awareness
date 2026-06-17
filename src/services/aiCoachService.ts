@@ -142,7 +142,7 @@ User's message: "${userMessage}"
     // Identify biggest emitter
     if (msg.includes('biggest') || msg.includes('emitter') || msg.includes('contributor') || msg.includes('highest')) {
       const pct = totalAvg > 0 ? Math.round((topCategory.value / totalAvg) * 100) : 0;
-      let advice = '';
+      let advice: string;
       if (topCategory.category === 'transportation') {
         advice = 'Since commuting is your main source, try replacing short car trips with walking or cycling, or use public transit for work commutes.';
       } else if (topCategory.category === 'electricity') {

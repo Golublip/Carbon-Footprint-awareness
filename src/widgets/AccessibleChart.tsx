@@ -27,7 +27,20 @@ export const AccessibleDonutChart: React.FC<DonutChartProps> = ({ data, title, u
   const strokeWidth = 16;
   const circumference = 2 * Math.PI * radius;
   
-  let accumulatedPercent = 0;
+  const slicesWithAngles: { color: string; percent: number; rotation: number }[] = [];
+  let currentAccumulated = 0;
+  for (let i = 0; i < data.length; i++) {
+    const slice = data[i];
+    if (slice.value > 0) {
+      const percent = total > 0 ? slice.value / total : 0;
+      slicesWithAngles.push({
+        color: slice.color,
+        percent,
+        rotation: currentAccumulated * 360
+      });
+      currentAccumulated += percent;
+    }
+  }
 
   // Accessibility description
   const dataDescription = data
@@ -104,13 +117,9 @@ export const AccessibleDonutChart: React.FC<DonutChartProps> = ({ data, title, u
                     className="dark:stroke-zinc-800"
                     strokeWidth={strokeWidth}
                   />
-                  {data.map((slice, index) => {
-                    if (slice.value <= 0) return null;
-                    const percent = slice.value / total;
-                    const strokeDashoffset = circumference - (percent * circumference);
+                  {slicesWithAngles.map((item, index) => {
+                    const strokeDashoffset = circumference - (item.percent * circumference);
                     const strokeDasharray = circumference;
-                    const rotation = (accumulatedPercent * 360);
-                    accumulatedPercent += percent;
 
                     return (
                       <circle
@@ -119,11 +128,11 @@ export const AccessibleDonutChart: React.FC<DonutChartProps> = ({ data, title, u
                         cy="60"
                         r={radius}
                         fill="transparent"
-                        stroke={slice.color}
+                        stroke={item.color}
                         strokeWidth={strokeWidth}
                         strokeDasharray={strokeDasharray}
                         strokeDashoffset={strokeDashoffset}
-                        transform={`rotate(${rotation} 60 60)`}
+                        transform={`rotate(${item.rotation} 60 60)`}
                         className="transition-all duration-500 ease-out hover:opacity-95"
                       />
                     );

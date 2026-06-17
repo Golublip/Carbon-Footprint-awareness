@@ -1,35 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { LogEntry, UserProfile, ActiveChallenge, Badge, TransportationLog, ElectricityLog, WaterLog, FoodLog, ShoppingLog } from '../models/types';
 import { storageRepository } from '../repositories/storageRepository';
 import { calculatorEngine } from '../services/calculatorEngine';
 import { AppContext } from './AppContext';
 import confetti from 'canvas-confetti';
 
+const getTodayStr = () => new Date().toISOString().split('T')[0];
+const getYesterdayStr = () => new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+const generateLogId = () => `log-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<UserProfile>(() => storageRepository.getProfile());
   const [logs, setLogs] = useState<LogEntry[]>(() => storageRepository.getLogs());
   const [activeChallenges, setActiveChallenges] = useState<ActiveChallenge[]>(() => storageRepository.getActiveChallenges());
   const [badges, setBadges] = useState<Badge[]>(() => storageRepository.getBadges());
-  const [score, setScore] = useState(100);
-  const [dailyAverage, setDailyAverage] = useState(0);
 
-  // Recalculate carbon score and daily average when logs or goal change
-  useEffect(() => {
-    const todayStr = new Date().toISOString().split('T')[0];
+  // Derived state: carbon score and daily average calculated during render using useMemo
+  const score = useMemo(() => {
+    const todayStr = getTodayStr();
     const todayLog = logs.find(l => l.date === todayStr);
     const todayTotal = todayLog ? todayLog.emissions.total : 0;
-    
-    // Set daily score
-    setScore(calculatorEngine.calculateScore(todayTotal, profile.dailyGoalKg));
-
-    // Set daily average
-    if (logs.length > 0) {
-      const totalSum = logs.reduce((sum, log) => sum + log.emissions.total, 0);
-      setDailyAverage(parseFloat((totalSum / logs.length).toFixed(2)));
-    } else {
-      setDailyAverage(0);
-    }
+    return calculatorEngine.calculateScore(todayTotal, profile.dailyGoalKg);
   }, [logs, profile.dailyGoalKg]);
+
+  const dailyAverage = useMemo(() => {
+    if (logs.length === 0) return 0;
+    const totalSum = logs.reduce((sum, log) => sum + log.emissions.total, 0);
+    return parseFloat((totalSum / logs.length).toFixed(2));
+  }, [logs]);
 
   const updateProfile = (name: string, dailyGoalKg: number) => {
     const updated = { ...profile, name, dailyGoalKg };
@@ -42,7 +40,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (existing) return { ...existing };
 
     return {
-      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateLogId(),
       date,
       emissions: {
         transportation: 0,
@@ -66,8 +64,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Update streak logic
     const updatedProfile = { ...profile };
-    const todayStr = new Date().toISOString().split('T')[0];
-    const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const todayStr = getTodayStr();
+    const yesterdayStr = getYesterdayStr();
 
     if (updatedEntry.date === todayStr || updatedEntry.date === yesterdayStr) {
       if (profile.lastLoggedDate !== updatedEntry.date) {

@@ -1,97 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../providers/AppContext';
 import { Card, Button, Input, Select } from '../widgets/SharedUI';
 import { Bus, Zap, Droplet, Apple, ShoppingBag, Calendar, CheckCircle } from 'lucide-react';
+import type { LogEntry, TransportationLog, ElectricityLog, WaterLog, FoodLog, ShoppingLog } from '../models/types';
 
 type Tab = 'transportation' | 'electricity' | 'water' | 'food' | 'shopping';
 
-export const TrackerScreen: React.FC = () => {
-  const { logs, logTransportation, logElectricity, logWater, logFood, logShopping } = useApp();
+interface TrackerFormProps {
+  date: string;
+  logs: LogEntry[];
+  logTransportation: (date: string, log: TransportationLog) => void;
+  logElectricity: (date: string, log: ElectricityLog) => void;
+  logWater: (date: string, log: WaterLog) => void;
+  logFood: (date: string, log: FoodLog) => void;
+  logShopping: (date: string, log: ShoppingLog) => void;
+}
+
+const TrackerForm: React.FC<TrackerFormProps> = ({
+  date,
+  logs,
+  logTransportation,
+  logElectricity,
+  logWater,
+  logFood,
+  logShopping
+}) => {
   const [activeTab, setActiveTab] = useState<Tab>('transportation');
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [successMessage, setSuccessMessage] = useState('');
+
+  const log = logs.find(l => l.date === date);
 
   // Form States
   // 1. Transportation
-  const [transMode, setTransMode] = useState<'car' | 'bus' | 'train' | 'flight' | 'bike' | 'walking'>('car');
-  const [distance, setDistance] = useState('10');
-  const [fuelType, setFuelType] = useState<'gasoline' | 'diesel' | 'hybrid' | 'electric'>('gasoline');
-  const [vehicleSize, setVehicleSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [transMode, setTransMode] = useState<'car' | 'bus' | 'train' | 'flight' | 'bike' | 'walking'>(
+    log?.transportation?.mode || 'car'
+  );
+  const [distance, setDistance] = useState(
+    log?.transportation?.distance !== undefined ? log.transportation.distance.toString() : '0'
+  );
+  const [fuelType, setFuelType] = useState<'gasoline' | 'diesel' | 'hybrid' | 'electric'>(
+    log?.transportation?.fuelType || 'gasoline'
+  );
+  const [vehicleSize, setVehicleSize] = useState<'small' | 'medium' | 'large'>(
+    log?.transportation?.vehicleSize || 'medium'
+  );
   const [transError, setTransError] = useState('');
 
   // 2. Electricity
-  const [kwh, setKwh] = useState('8');
-  const [elecSource, setElecSource] = useState<'grid' | 'mix' | 'solar' | 'wind'>('grid');
+  const [kwh, setKwh] = useState(
+    log?.electricity?.kwh !== undefined ? log.electricity.kwh.toString() : '0'
+  );
+  const [elecSource, setElecSource] = useState<'grid' | 'mix' | 'solar' | 'wind'>(
+    log?.electricity?.source || 'grid'
+  );
   const [elecError, setElecError] = useState('');
 
   // 3. Water
-  const [liters, setLiters] = useState('100');
+  const [liters, setLiters] = useState(
+    log?.water?.liters !== undefined ? log.water.liters.toString() : '0'
+  );
   const [waterError, setWaterError] = useState('');
 
   // 4. Food
-  const [meatServings, setMeatServings] = useState('0');
-  const [dairyServings, setDairyServings] = useState('1');
-  const [veganMeals, setVeganMeals] = useState('2');
-  const [foodWaste, setFoodWaste] = useState('0.2');
+  const [meatServings, setMeatServings] = useState(
+    log?.food?.meatServings !== undefined ? log.food.meatServings.toString() : '0'
+  );
+  const [dairyServings, setDairyServings] = useState(
+    log?.food?.dairyServings !== undefined ? log.food.dairyServings.toString() : '0'
+  );
+  const [veganMeals, setVeganMeals] = useState(
+    log?.food?.veganMeals !== undefined ? log.food.veganMeals.toString() : '0'
+  );
+  const [foodWaste, setFoodWaste] = useState(
+    log?.food?.foodWasteKg !== undefined ? log.food.foodWasteKg.toString() : '0'
+  );
   const [foodError, setFoodError] = useState('');
 
   // 5. Shopping
-  const [clothing, setClothing] = useState('0');
-  const [electronics, setElectronics] = useState('0');
-  const [packaging, setPackaging] = useState('0.4');
-  const [recycleRate, setRecycleRate] = useState('50');
+  const [clothing, setClothing] = useState(
+    log?.shopping?.clothingItems !== undefined ? log.shopping.clothingItems.toString() : '0'
+  );
+  const [electronics, setElectronics] = useState(
+    log?.shopping?.electronicsItems !== undefined ? log.shopping.electronicsItems.toString() : '0'
+  );
+  const [packaging, setPackaging] = useState(
+    log?.shopping?.generalPackagingKg !== undefined ? log.shopping.generalPackagingKg.toString() : '0'
+  );
+  const [recycleRate, setRecycleRate] = useState(
+    log?.shopping?.recycleRate !== undefined ? log.shopping.recycleRate.toString() : '0'
+  );
   const [shopError, setShopError] = useState('');
-
-  // Pre-load existing data if date change
-  useEffect(() => {
-    const log = logs.find(l => l.date === date);
-    if (log) {
-      if (log.transportation) {
-        setTransMode(log.transportation.mode);
-        setDistance(log.transportation.distance.toString());
-        if (log.transportation.fuelType) setFuelType(log.transportation.fuelType);
-        if (log.transportation.vehicleSize) setVehicleSize(log.transportation.vehicleSize);
-      }
-      if (log.electricity) {
-        setKwh(log.electricity.kwh.toString());
-        setElecSource(log.electricity.source);
-      }
-      if (log.water) {
-        setLiters(log.water.liters.toString());
-      }
-      if (log.food) {
-        setMeatServings(log.food.meatServings.toString());
-        setDairyServings(log.food.dairyServings.toString());
-        setVeganMeals(log.food.veganMeals.toString());
-        setFoodWaste(log.food.foodWasteKg.toString());
-      }
-      if (log.shopping) {
-        setClothing(log.shopping.clothingItems.toString());
-        setElectronics(log.shopping.electronicsItems.toString());
-        setPackaging(log.shopping.generalPackagingKg.toString());
-        setRecycleRate(log.shopping.recycleRate.toString());
-      }
-    } else {
-      // Clear forms or reset to default averages
-      setDistance('0');
-      setKwh('0');
-      setLiters('0');
-      setMeatServings('0');
-      setDairyServings('0');
-      setVeganMeals('0');
-      setFoodWaste('0');
-      setClothing('0');
-      setElectronics('0');
-      setPackaging('0');
-      setRecycleRate('0');
-    }
-  }, [date, logs]);
 
   const triggerSuccess = (message: string) => {
     setSuccessMessage(message);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setSuccessMessage('');
     }, 3500);
+    return () => clearTimeout(timer);
   };
 
   const handleTransSubmit = (e: React.FormEvent) => {
@@ -185,33 +190,7 @@ export const TrackerScreen: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
-          Activity Logger
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Record your daily habits to compute your carbon footprint and score.
-        </p>
-      </div>
-
-      {/* Date Selector */}
-      <Card className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4">
-        <div className="flex items-center gap-3">
-          <Calendar className="w-5 h-5 text-blue-500 shrink-0" aria-hidden="true" />
-          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Logging Date</span>
-        </div>
-        <div className="w-full sm:w-48">
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-950 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-            aria-label="Select date to log activities"
-          />
-        </div>
-      </Card>
-
+    <div className="space-y-6">
       {/* Success Notification Banner */}
       {successMessage && (
         <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-400 rounded-lg p-4 flex items-center gap-3" role="status">
@@ -257,7 +236,7 @@ export const TrackerScreen: React.FC = () => {
               label="Mode of Transport"
               id="trans-mode"
               value={transMode}
-              onChange={e => setTransMode(e.target.value as any)}
+              onChange={e => setTransMode(e.target.value as 'car' | 'bus' | 'train' | 'flight' | 'bike' | 'walking')}
               options={[
                 { value: 'car', label: 'Passenger Car' },
                 { value: 'bus', label: 'Transit Bus' },
@@ -284,7 +263,7 @@ export const TrackerScreen: React.FC = () => {
                   label="Fuel Type"
                   id="car-fuel"
                   value={fuelType}
-                  onChange={e => setFuelType(e.target.value as any)}
+                  onChange={e => setFuelType(e.target.value as 'gasoline' | 'diesel' | 'hybrid' | 'electric')}
                   options={[
                     { value: 'gasoline', label: 'Gasoline' },
                     { value: 'diesel', label: 'Diesel' },
@@ -296,7 +275,7 @@ export const TrackerScreen: React.FC = () => {
                   label="Vehicle Size"
                   id="car-size"
                   value={vehicleSize}
-                  onChange={e => setVehicleSize(e.target.value as any)}
+                  onChange={e => setVehicleSize(e.target.value as 'small' | 'medium' | 'large')}
                   options={[
                     { value: 'small', label: 'Compact / Small' },
                     { value: 'medium', label: 'Sedan / Medium' },
@@ -333,7 +312,7 @@ export const TrackerScreen: React.FC = () => {
               label="Energy Sourcing"
               id="elec-source"
               value={elecSource}
-              onChange={e => setElecSource(e.target.value as any)}
+              onChange={e => setElecSource(e.target.value as 'grid' | 'mix' | 'solar' | 'wind')}
               options={[
                 { value: 'grid', label: 'Standard Local Grid (Coal/Gas heavy)' },
                 { value: 'mix', label: 'Utility Green Power Mix' },
@@ -472,6 +451,53 @@ export const TrackerScreen: React.FC = () => {
           </form>
         </Card>
       </div>
+    </div>
+  );
+};
+
+export const TrackerScreen: React.FC = () => {
+  const { logs, logTransportation, logElectricity, logWater, logFood, logShopping } = useApp();
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+
+  return (
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
+          Activity Logger
+        </h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          Record your daily habits to compute your carbon footprint and score.
+        </p>
+      </div>
+
+      {/* Date Selector */}
+      <Card className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4">
+        <div className="flex items-center gap-3">
+          <Calendar className="w-5 h-5 text-blue-500 shrink-0" aria-hidden="true" />
+          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Logging Date</span>
+        </div>
+        <div className="w-full sm:w-48">
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-950 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            aria-label="Select date to log activities"
+          />
+        </div>
+      </Card>
+
+      {/* The form with key={date} */}
+      <TrackerForm
+        key={date}
+        date={date}
+        logs={logs}
+        logTransportation={logTransportation}
+        logElectricity={logElectricity}
+        logWater={logWater}
+        logFood={logFood}
+        logShopping={logShopping}
+      />
     </div>
   );
 };
