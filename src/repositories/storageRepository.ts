@@ -127,7 +127,8 @@ export const storageRepository = {
         dailyGoalKg: 15.0, // Standard sustainable daily target
         joinedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         streak: 3,
-        lastLoggedDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        lastLoggedDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        totalOffsetKg: 0
       };
       this.saveProfile(defaultProfile);
       return defaultProfile;

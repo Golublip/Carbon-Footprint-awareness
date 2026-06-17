@@ -1,7 +1,19 @@
+/**
+ * @file calculatorEngine.ts
+ * @description Core calculation engine for computing detailed carbon footprint emissions
+ * across multiple categories including transportation, electricity, water, food, and shopping.
+ * All factors utilize verified carbon equivalent coefficients.
+ */
+
 import type { LogEntry, TransportationLog, ElectricityLog, WaterLog, FoodLog, ShoppingLog } from '../models/types';
 import { EMISSION_FACTORS } from '../constants/emissionFactors';
 
 export const calculatorEngine = {
+  /**
+   * Calculates CO2e emissions for transportation based on distance, mode, fuel type, and vehicle size.
+   * @param log - The transportation log containing distance and travel parameters
+   * @returns The total emissions in kg CO2e
+   */
   calculateTransportation(log: TransportationLog): number {
     const { mode, distance, fuelType, vehicleSize } = log;
     if (distance <= 0) return 0;
@@ -17,6 +29,11 @@ export const calculatorEngine = {
     return parseFloat((distance * factor).toFixed(2));
   },
 
+  /**
+   * Calculates CO2e emissions for household electricity consumption.
+   * @param log - The electricity log containing consumption in kWh and power source type
+   * @returns The total emissions in kg CO2e
+   */
   calculateElectricity(log: ElectricityLog): number {
     const { kwh, source } = log;
     if (kwh <= 0) return 0;
@@ -24,6 +41,11 @@ export const calculatorEngine = {
     return parseFloat((kwh * factor).toFixed(2));
   },
 
+  /**
+   * Calculates CO2e emissions for domestic water consumption.
+   * @param log - The water log containing consumption in liters
+   * @returns The total emissions in kg CO2e
+   */
   calculateWater(log: WaterLog): number {
     const { liters } = log;
     if (liters <= 0) return 0;
@@ -31,6 +53,11 @@ export const calculatorEngine = {
     return parseFloat((liters * factor).toFixed(2));
   },
 
+  /**
+   * Calculates CO2e emissions for food habits based on portions and food waste.
+   * @param log - The food log containing portions of meat, dairy, vegan meals, and waste in kg
+   * @returns The total emissions in kg CO2e
+   */
   calculateFood(log: FoodLog): number {
     const { meatServings, dairyServings, veganMeals, foodWasteKg } = log;
     const meatCo2 = Math.max(0, meatServings) * EMISSION_FACTORS.food.meatServing;
@@ -40,6 +67,11 @@ export const calculatorEngine = {
     return parseFloat((meatCo2 + dairyCo2 + veganCo2 + wasteCo2).toFixed(2));
   },
 
+  /**
+   * Calculates CO2e emissions for shopping habits, applying recycling credits.
+   * @param log - The shopping log containing clothing, electronics, packaging weight, and recycling rate
+   * @returns The total emissions in kg CO2e
+   */
   calculateShopping(log: ShoppingLog): number {
     const { clothingItems, electronicsItems, generalPackagingKg, recycleRate } = log;
     const clothingCo2 = Math.max(0, clothingItems) * EMISSION_FACTORS.shopping.clothingItem;
@@ -52,6 +84,10 @@ export const calculatorEngine = {
     return parseFloat((clothingCo2 + electronicsCo2 + packagingCo2).toFixed(2));
   },
 
+  /**
+   * Computes the aggregated carbon footprint for all logged categories.
+   * @returns A complete emissions record including total and category-specific kg CO2e values
+   */
   calculateAllEmissions(
     transportation?: TransportationLog,
     electricity?: ElectricityLog,
@@ -82,6 +118,9 @@ export const calculatorEngine = {
    * - 100: Excellent, net-zero or highly sustainable footprint (0 - 5 kg)
    * - 70+: Sustainable footprint within normal targets (5 - 15 kg)
    * - <50: High-carbon footprint exceeding sustainable targets (15+ kg)
+   * @param totalEmissions - The total daily emissions in kg CO2e
+   * @param dailyGoal - The user's targeted daily limit in kg
+   * @returns The resulting carbon score between 0 and 100
    */
   calculateScore(totalEmissions: number, dailyGoal: number): number {
     if (totalEmissions <= 0) return 100;

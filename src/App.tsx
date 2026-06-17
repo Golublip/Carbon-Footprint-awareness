@@ -8,6 +8,7 @@ import { CoachScreen } from './screens/CoachScreen';
 import { ChallengesScreen } from './screens/ChallengesScreen';
 import { EducationScreen } from './screens/EducationScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
+import { ImpactScreen } from './screens/ImpactScreen';
 import {
   LayoutDashboard,
   ClipboardList,
@@ -15,6 +16,7 @@ import {
   Trophy,
   BookOpen,
   User,
+  Globe,
   Sun,
   Moon,
   Leaf,
@@ -22,7 +24,7 @@ import {
   X
 } from 'lucide-react';
 
-type Screen = 'dashboard' | 'tracker' | 'coach' | 'challenges' | 'education' | 'profile';
+type Screen = 'dashboard' | 'tracker' | 'coach' | 'challenges' | 'education' | 'profile' | 'impact';
 
 const AppShell: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -34,6 +36,7 @@ const AppShell: React.FC = () => {
     { id: 'tracker', label: 'Logger', icon: ClipboardList },
     { id: 'coach', label: 'AI Coach', icon: Sparkles },
     { id: 'challenges', label: 'Challenges', icon: Trophy },
+    { id: 'impact', label: 'Impact Hub', icon: Globe },
     { id: 'education', label: 'Resources', icon: BookOpen },
     { id: 'profile', label: 'Profile', icon: User },
   ];
@@ -48,6 +51,8 @@ const AppShell: React.FC = () => {
         return <CoachScreen />;
       case 'challenges':
         return <ChallengesScreen />;
+      case 'impact':
+        return <ImpactScreen />;
       case 'education':
         return <EducationScreen />;
       case 'profile':

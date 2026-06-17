@@ -1,3 +1,9 @@
+/**
+ * @file reportService.ts
+ * @description Generates analytical weekly carbon reports, forecasts future carbon footprint
+ * reductions based on progressive optimization, and handles print-to-PDF export triggers.
+ */
+
 import type { LogEntry } from '../models/types';
 import { aiCoachService } from './aiCoachService';
 
@@ -31,6 +37,12 @@ export interface ForecastPoint {
 }
 
 export const reportService = {
+  /**
+   * Generates a comparative summary between the current week (most recent 7 logs)
+   * and the previous week (subsequent 7 logs).
+   * @param history - The sorted list of user log entries
+   * @returns A WeeklySummary report with totals, changes, and savings
+   */
   getWeeklySummary(history: LogEntry[]): WeeklySummary {
     const sorted = [...history].sort((a, b) => b.date.localeCompare(a.date));
     
@@ -84,6 +96,13 @@ export const reportService = {
     };
   },
 
+  /**
+   * Projects a 6-month carbon footprint forecast comparing Business-As-Usual (BAU)
+   * with optimized green habits.
+   * @param history - The history of log entries
+   * @param dailyGoal - The user's target daily emissions goal
+   * @returns An array of ForecastPoints for the next 6 months
+   */
   get6MonthForecast(history: LogEntry[], dailyGoal: number): ForecastPoint[] {
     const averages = aiCoachService.getCategoryAverages(history);
     const dailyAverage = Object.values(averages).reduce((a, b) => a + b, 0);

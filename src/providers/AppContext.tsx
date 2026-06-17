@@ -17,6 +17,7 @@ export interface AppContextType {
   joinChallenge: (challengeId: string) => void;
   checkInChallenge: (challengeId: string, date: string, value: number) => void;
   completeChallenge: (challengeId: string) => void;
+  retireCarbonOffset: (amountKg: number) => void;
   resetData: () => void;
 }
 

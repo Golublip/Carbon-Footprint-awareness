@@ -89,6 +89,7 @@ export interface UserProfile {
   streak: number;
   lastLoggedDate?: string;
   avatarUrl?: string;
+  totalOffsetKg?: number; // total kg CO2 offset retired
 }
 
 export interface ChatMessage {

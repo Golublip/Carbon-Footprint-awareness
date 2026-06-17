@@ -264,6 +264,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const retireCarbonOffset = (amountKg: number) => {
+    const currentTotal = profile.totalOffsetKg || 0;
+    const updatedProfile = {
+      ...profile,
+      totalOffsetKg: parseFloat((currentTotal + amountKg).toFixed(2))
+    };
+    setProfile(updatedProfile);
+    storageRepository.saveProfile(updatedProfile);
+
+    // Fire confetti fireworks!
+    confetti({
+      particleCount: 80,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 }
+    });
+    confetti({
+      particleCount: 80,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 }
+    });
+  };
+
   const resetData = () => {
     storageRepository.clearAll();
     setProfile(storageRepository.getProfile());
@@ -289,6 +313,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       joinChallenge,
       checkInChallenge,
       completeChallenge,
+      retireCarbonOffset,
       resetData
     }}>
       {children}
