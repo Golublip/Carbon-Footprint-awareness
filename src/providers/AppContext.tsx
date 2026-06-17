@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { LogEntry, UserProfile, ActiveChallenge, Badge, TransportationLog, ElectricityLog, WaterLog, FoodLog, ShoppingLog } from '../models/types';
 import { storageRepository } from '../repositories/storageRepository';
